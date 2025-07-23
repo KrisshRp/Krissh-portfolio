@@ -228,10 +228,54 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
+    // Cache configuration
+    const CACHE_KEY = 'github_repos_cache';
+    const CACHE_DURATION = 1000 * 60 * 30; // 30 minutes
+    
+    // Check if cached data is still valid
+    function getCachedRepos() {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_DURATION) {
+                    return data;
+                }
+            }
+        } catch (error) {
+            console.log('Error reading cache:', error.message);
+        }
+        return null;
+    }
+    
+    // Save repos to cache
+    function setCachedRepos(repos) {
+        try {
+            const cacheData = {
+                data: repos,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        } catch (error) {
+            console.log('Error saving to cache:', error.message);
+        }
+    }
+
+    // GitHub API configuration
+    const GITHUB_TOKEN = null; // Set your token here if needed
+    const API_HEADERS = GITHUB_TOKEN ? {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
+    } : {
+        'Accept': 'application/vnd.github.v3+json'
+    };
+
     // Fetch languages for a repository
     async function fetchRepoLanguages(repoName) {
         try {
-            const response = await fetch(`https://api.github.com/repos/${githubUsername}/${repoName}/languages`);
+            const response = await fetch(`https://api.github.com/repos/${githubUsername}/${repoName}/languages`, {
+                headers: API_HEADERS
+            });
             if (response.ok) {
                 const languages = await response.json();
                 // Return top 3 languages by bytes of code
@@ -247,13 +291,27 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fetch repositories from GitHub API
     async function fetchGitHubRepos() {
+        // First, try to load from cache
+        const cachedRepos = getCachedRepos();
+        if (cachedRepos) {
+            console.log('Loading projects from cache');
+            displayRepos(cachedRepos);
+            return;
+        }
+        
         try {
             // Show loading message
             projectsContainer.innerHTML = '<div class="loading-projects"><p>Loading projects from GitHub...</p></div>';
             
-            const response = await fetch(`https://api.github.com/users/${githubUsername}/repos?sort=pushed&direction=desc&per_page=12`);
+            const response = await fetch(`https://api.github.com/users/${githubUsername}/repos?sort=pushed&direction=desc&per_page=12`, {
+                headers: API_HEADERS
+            });
             
             if (!response.ok) {
+                if (response.status === 403) {
+                    console.log('GitHub API rate limit exceeded, using fallback projects');
+                    throw new Error(`GitHub API rate limit exceeded. Status: ${response.status}`);
+                }
                 throw new Error(`GitHub API responded with status: ${response.status}`);
             }
             
@@ -269,11 +327,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('No public repositories found');
             }
             
+            // Cache the successful response
+            setCachedRepos(originalRepos);
+            
+            // Display the repos
+            displayRepos(originalRepos);
+            
+        } catch (error) {
+            console.log('GitHub API failed, using fallback projects:', error.message);
+            
+            // Show user-friendly message for rate limiting
+            if (error.message.includes('rate limit')) {
+                projectsContainer.innerHTML = `
+                    <div class="loading-projects">
+                        <p style="color: #f39c12;">GitHub API rate limit reached. Showing curated projects...</p>
+                    </div>
+                `;
+                setTimeout(displayFallbackProjects, 1000);
+            } else {
+                displayFallbackProjects();
+            }
+        }
+    }
+    
+    // Display repositories (extracted from fetchGitHubRepos for reuse)
+    async function displayRepos(repos) {
+        try {
             // Generate project cards with languages
             let projectsHTML = '';
             
             // Fetch languages for each repo and create cards
-            const repoPromises = originalRepos.map(async (repo, index) => {
+            const repoPromises = repos.map(async (repo, index) => {
                 // Fetch languages for this repository
                 const languages = await fetchRepoLanguages(repo.name);
                 
@@ -316,10 +400,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(initPortfolioFilter, 500);
             }
             
-            console.log(`Successfully loaded ${originalRepos.length} GitHub repositories`);
+            console.log(`Successfully loaded ${repos.length} GitHub repositories`);
             
         } catch (error) {
-            console.log('GitHub API failed, using fallback projects:', error.message);
+            console.log('Error displaying repos:', error.message);
             displayFallbackProjects();
         }
     }
