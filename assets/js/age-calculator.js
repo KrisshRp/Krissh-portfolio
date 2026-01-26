@@ -25,6 +25,8 @@ function calculateAge() {
 // Function to update age in DOM elements
 function updateAgeElements() {
     const age = calculateAge();
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
     
     // Update age span in profile info
     const ageSpan = document.querySelector('[data-age-display]');
@@ -36,6 +38,13 @@ function updateAgeElements() {
     const heroDescription = document.querySelector('[data-age-description]');
     if (heroDescription) {
         heroDescription.innerHTML = `I'm a ${age}-year-old technical team lead and full-stack developer who builds scalable backend systems, intuitive interfaces, and intelligent automations. My work spans AI, blockchain, and automation. I believe in building quiet empires through clean code, strategic thinking, and emotional resilience.`;
+    }
+
+    const copyright = document.querySelector('[data-year-display]');
+    console.log(copyright, currentYear);
+    
+    if (copyright) {
+        copyright.innerHTML = currentYear;
     }
 }
 

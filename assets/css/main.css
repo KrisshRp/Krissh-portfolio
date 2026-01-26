@@ -711,6 +711,12 @@ hr{
 	left: 30px;
 }
 
+.profile-pic .social-links ul{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 .profile-pic .social-links ul li{
 	float: left;
 }
@@ -730,6 +736,11 @@ hr{
 	-moz-transition: all ease .3s;
 	-ms-transition: all ease .3s;
 	-o-transition: all ease .3s;
+}
+
+.profile-pic .social-links ul li a i,
+.profile-pic .social-links ul li a img{
+	max-width: 25px;
 }
 
 .profile-pic .social-links ul li a:hover{
@@ -2639,6 +2650,11 @@ form .site-btn{
 	font-weight: 600;
 	margin: 0 0 10px 0;
 	text-transform: capitalize;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .project-description {
