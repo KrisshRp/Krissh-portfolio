@@ -2628,11 +2628,22 @@ form .site-btn{
 .github-project-card {
 	background: rgba(255, 255, 255, 0.05);
 	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 12px;
+	border-radius: 8px;
 	padding: 20px;
 	height: 100%;
 	transition: all 0.3s ease;
 }
+
+.hero-role { color: #d8ed13; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.selected-projects { margin-bottom: 64px; }
+.selected-projects h2 { font-size: 24px; margin-bottom: 8px; }
+.selected-projects > p { margin-bottom: 24px; }
+.selected-projects article { margin-bottom: 16px; }
+.selected-projects .project-title { -webkit-line-clamp: unset; line-clamp: unset; }
+.selected-projects .project-description { display: block; }
+.project-stack { color: #d8ed13; font-size: 13px; line-height: 1.6; }
+.skill-list .bar-info span, .skill-list .progress { display: none; }
 
 .github-project-card:hover {
 	transform: translateY(-5px);

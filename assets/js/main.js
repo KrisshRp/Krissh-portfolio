@@ -27,7 +27,6 @@ function ajaxLoad(){
   videoPlay();
   charts();
   isotope();
-  contactmap();
   setTimeout(() => {
     scrollAnimation();
   }, 1000);
@@ -303,7 +302,7 @@ html.push(textArray[i]);
 
   if( $('.onepage').length ){
 
-    $('header nav ul li a').on('click', function (e) {
+    $('header nav ul li a, .hero-actions a[href^="#"]').on('click', function (e) {
       e.preventDefault();
       $(document).off("scroll");            
       $('header nav ul li a').removeClass('active');          

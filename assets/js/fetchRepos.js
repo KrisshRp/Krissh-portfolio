@@ -319,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Filter out forked repositories and ensure we have valid data
             const originalRepos = repos
-                .filter(repo => !repo.fork && !repo.name.includes('.github') && repo.name)
-                .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
+                .filter(repo => !repo.fork && !repo.name.includes('.github') && repo.name && repo.description)
+                .sort((a, b) => Number(b.name.toLowerCase() === 'rpgene') - Number(a.name.toLowerCase() === 'rpgene') || (b.stargazers_count || 0) - (a.stargazers_count || 0))
                 .slice(0, 9); // Limit to 9 projects to fit grid nicely
             
             if (originalRepos.length === 0) {
@@ -392,9 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             projectsContainer.innerHTML = projectsHTML;
             
-            // Show static projects after GitHub projects
-            showStaticProjects();
-            
             // Initialize portfolio filtering after projects are loaded
             if (typeof initPortfolioFilter === 'function') {
                 setTimeout(initPortfolioFilter, 500);
@@ -410,27 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Display fallback projects
     function displayFallbackProjects() {
-        let projectsHTML = '';
-        fallbackProjects.forEach((project, index) => {
-            projectsHTML += createProjectCard(project, index * 0.1);
-        });
-        
-        projectsContainer.innerHTML = projectsHTML;
-        
-        // Show static projects after fallback projects
-        showStaticProjects();
-        
-        // Initialize portfolio filtering
-        if (typeof initPortfolioFilter === 'function') {
-            setTimeout(initPortfolioFilter, 500);
-        }
-    }
-    
-    // Show static projects
-    function showStaticProjects() {
-        if (staticProjectsContainer) {
-            staticProjectsContainer.style.display = 'block';
-        }
+        projectsContainer.innerHTML = '<p class="col-12">GitHub projects are temporarily unavailable. <a href="https://github.com/KrisshRp" target="_blank" rel="noopener noreferrer">Browse my repositories</a>.</p>';
     }
     
     // Initialize
